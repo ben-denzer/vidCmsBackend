@@ -17,7 +17,11 @@ app.use((req, res, next) => {
 });
 
 const authRouter = require('./src/routes/authRouter')(connection);
-app.use('/flashcards/auth', authRouter);
+const adminRouter = require('./src/routes/adminRouter')(connection);
+const publicRouter = require('./src/routes/publicRouter')(connection);
+app.use('/auth', authRouter);
+app.use('/admin', adminRouter);
+app.use('/public', publicRouter);
 
 app.listen(port, (err) => {
     if (err) return console.error(err);

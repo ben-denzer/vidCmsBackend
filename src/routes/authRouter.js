@@ -6,7 +6,7 @@ const authRouter        = express.Router();
 const passport          = require('passport');
 const jwt               = require('jsonwebtoken');
 const jwtInfo           = require('../../.jwtinfo').key;
-const sendPasswordReset     = require('../services/sendPasswordReset');
+const sendPasswordReset = require('../services/sendPasswordReset');
 const resetPw           = require('../services/resetPw');
 
 const router = (connection) => {
