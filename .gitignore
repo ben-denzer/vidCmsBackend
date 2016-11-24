@@ -2,3 +2,4 @@ node_modules
 .dbinfo.js
 .jwtinfo.js
 .mailgun_conf.js
+uploads
