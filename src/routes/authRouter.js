@@ -25,14 +25,15 @@ const router = (connection) => {
     authRouter.post('/loginWithToken', jsonParser, (req, res) => {
         jwt.verify(req.body.token, jwtInfo, (err, user) => {
             if (err) return res.status(500).send({error: 'session expired, please log in again'});
-            connection.query('SELECT u.coins, u.username FROM users u WHERE u.user_id=?',
+            connection.query('SELECT u.username, u.premium, u.admin FROM users u WHERE u.user_id=?',
                 [user.user_id],
                 (err, rows) => {
                     if (err) return res.status(500).send();
                     res.status(200).send(JSON.stringify({
-                        username: rows[0].username,
-                        coins: rows[0].coins,
-                        token: req.body.token
+                        username:   rows[0].username,
+                        premium:    rows[0].premium,
+                        admin:      rows[0].admin,
+                        token:      req.body.token
                     }));
                 }
             );

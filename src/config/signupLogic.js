@@ -4,8 +4,7 @@ const jwt = require('jsonwebtoken');
 const jwtSecret = require('../../.jwtinfo').key;
 
 const signup = (req, connection, cb) => {
-    const username = req.body.username;
-    const password = req.body.password;
+    const {username, password, premium} = req.body;
     const email = req.body.email || null;
 
     const success = () => {
@@ -13,19 +12,20 @@ const signup = (req, connection, cb) => {
             if (err) return cb({error: 'hashing error'});
 
             connection.query(
-                'INSERT INTO users(username, password, email) VALUES(?,?,?)',
-                [username, hash, email],
+                'INSERT INTO users(username, password, email, premium) VALUES(?,?,?,?)',
+                [username, hash, email, premium],
                 (err, rows) => {
                     if (err) return cb({error: 'db error'});
 
                     let newUser = {
                         username,
                         user_id: rows.insertId,
+                        premium
                     };
 
                     req.login(newUser, (err) => {
                         if (err) return cb({error: 'passport error'});
-                        cb(null, jwt.sign(Object.assign({}, newUser, {coins: 0}), jwtSecret, {}));
+                        cb(null, jwt.sign(newUser, jwtSecret, {}));
                     });
                 }
             );

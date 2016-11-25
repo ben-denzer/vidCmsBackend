@@ -9,16 +9,16 @@ const resetPw = (req, connection, cb) => {
             [hash, req.body.username],
             (err, success) => {
                 if (err) return cb({error: 'db error 1'});
-                connection.query('SELECT u.coins FROM users u WHERE u.username=?',
+                connection.query('SELECT u.user_id, u.admin, u.premium FROM users u WHERE u.username=?',
                     [req.body.username],
                     (err, rows) => {
                         if (err) return cb({error: 'db error 2'});
                         cb(null, JSON.stringify({
                             username: req.body.username,
-                            coins: rows[0].coins,
+                            admin: rows[0].admin,
+                            premium: rows[0].premium,
                             token: jwt.sign({
-                                username: req.body.username,
-                                coins: req.body.coins
+                                id: rows[0].user_id
                             }, jwtInfo)
                         }));
                     }

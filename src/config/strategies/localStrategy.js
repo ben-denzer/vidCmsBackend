@@ -13,21 +13,26 @@ const login = (connection) => {
             },
             (username, password, cb) => {
                 connection.query(
-                    'SELECT u.user_id, u.password FROM users u WHERE u.username = ?',
+                    'SELECT u.user_id, u.password, u.premium, u.admin FROM users u WHERE u.username = ?',
                     [username],
                     (err, rows) => {
-                        if (err) cb({error: 'db error'});
+                        if (err) {
+                            console.log(err);
+                            cb({error: 'db error'});
+                        }
                         if (!rows || !rows.length) return cb(null, false);
 
                         const user = {
-                            user_id: rows[0].user_id,
-                            username: rows[0].username,
+                            user_id:    rows[0].user_id,
+                            premium:    rows[0].premium,
+                            admin:      rows[0].admin,
+                            username:   rows[0].username
                         };
 
                         bcrypt.compare(password, rows[0].password, (err, res) => {
                             if (err) return cb({error: 'bcrypt error'});
                             if (res) {
-                                cb(null, {token: jwt.sign(user, jwtSecret, {})});
+                                cb(null, {premium: user.premium, admin: user.admin, token: jwt.sign(user, jwtSecret, {})});
                             } else {
                                 cb(null, false);
                             }
