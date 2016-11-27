@@ -5,6 +5,7 @@ const dbinfo            = require('./.dbinfo');
 const mysql             = require('mysql');
 const connection        = mysql.createConnection(dbinfo);
 const passportConfig    = require('./src/config/passportConfig');
+const path              = require('path');
 passportConfig(app, connection);
 const morgan            = require('morgan');
 
@@ -16,12 +17,16 @@ app.use((req, res, next) => {
     next();
 });
 
+
 const authRouter = require('./src/routes/authRouter')(connection);
 const adminRouter = require('./src/routes/adminRouter')(connection);
 const publicRouter = require('./src/routes/publicRouter')(connection);
 app.use('/auth', authRouter);
 app.use('/admin', adminRouter);
 app.use('/public', publicRouter);
+app.get('/uploads/:id', (req, res) => {
+    res.status(200).sendFile(path.join(__dirname, `/uploads/${req.params.id}`));
+});
 
 app.listen(port, (err) => {
     if (err) return console.error(err);
