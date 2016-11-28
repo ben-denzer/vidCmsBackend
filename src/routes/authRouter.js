@@ -22,6 +22,21 @@ const router = (connection) => {
         res.status(200).send(JSON.stringify(req.user));
     });
 
+    authRouter.post('/getPremiumVideo', jsonParser, (req, res) => {
+        const {video_id, token} = req.body;
+        jwt.verify(token, jwtInfo, (err, user) => {
+            if (err || !user || !user.premium) return res.status(403).send({error: 'unauthorized'});
+            connection.query(
+                'SELECT v.video_title, v.video_headline, v.video_url, v.video_text FROM videos v WHERE v.video_id = ?',
+                [video_id],
+                (err, rows) => {
+                    if (err) return res.status(500).send({error: 'db error'});
+                    res.status(200).send(JSON.stringify(rows));
+                }
+            );
+        });
+    });
+
     authRouter.post('/loginWithToken', jsonParser, (req, res) => {
         jwt.verify(req.body.token, jwtInfo, (err, user) => {
             if (err) return res.status(500).send({error: 'session expired, please log in again'});
@@ -54,22 +69,22 @@ const router = (connection) => {
         jwt.verify(token, jwtInfo, (err, user) => {
             if (err || !user) return res.status(403).send({error: 'unauthorized'});
             resetPw(req, connection, (err, data) => {
-                if (err) return res.status(500).send(err);
+                if (err) return res.status(500).send(JSON.stringify({error: err}));
                 res.status(200).send(data);
             });
         });
     });
 
-    authRouter.post('/getPremiumVideo', jsonParser, (req, res) => {
-        const {video_id, token} = req.body;
+    authRouter.post('/submitComment', jsonParser, (req, res) => {
+        const token = req.body.token;
         jwt.verify(token, jwtInfo, (err, user) => {
-            if (err || !user || !user.premium) return res.status(403).send({error: 'unauthorized'});
+            if (err || !user) return res.status(403).send({error: 'unauthorized'});
             connection.query(
-                'SELECT v.video_title, v.video_headline, v.video_url, v.video_text FROM videos v WHERE v.video_id = ?',
-                [video_id],
-                (err, rows) => {
-                    if (err) return res.status(500).send({error: 'db error'});
-                    res.status(200).send(JSON.stringify(rows));
+                'INSERT INTO comments(comment_text, user_fk, video_fk) VALUES(?,?,?)',
+                [req.body.comment, user.user_id, req.body.video],
+                (err, success) => {
+                    if (err) return res.send(JSON.stringify({error: 'db error'}));
+                    res.status(200).send(JSON.stringify({success: 'comment added'}));
                 }
             );
         });
