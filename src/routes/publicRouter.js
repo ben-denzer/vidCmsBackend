@@ -24,7 +24,17 @@ const router = (connection) => {
         );
     });
 
-
+    publicRouter.post('/getComments', jsonParser, (req, res) => {
+        console.log(req.body.video_id, 'id');
+        connection.query(
+            'SELECT u.username, c.comment_text FROM comments c JOIN users u ON c.user_fk=u.user_id JOIN videos v ON c.video_fk=video_id WHERE c.video_fk=?',
+            [req.body.video_id],
+            (err, rows) => {
+                if (err) return res.status(500).send({error: 'db error'});
+                res.status(200).send(JSON.stringify(rows));
+            }
+        )
+    });
 
     return publicRouter;
 };
