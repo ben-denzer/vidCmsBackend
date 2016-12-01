@@ -80,7 +80,7 @@ const router = (connection) => {
         jwt.verify(token, jwtInfo, (err, user) => {
             if (err || !user) return res.status(403).send({error: 'unauthorized'});
             connection.query(
-                'INSERT INTO comments(comment_text, user_fk, video_fk) VALUES(?,?,?)',
+                'INSERT INTO comments(comment_text, user_fk, video_fk, comment_date) VALUES(?,?,?,curdate())',
                 [req.body.comment, user.user_id, req.body.video],
                 (err, success) => {
                     if (err) return res.send(JSON.stringify({error: 'db error'}));
