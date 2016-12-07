@@ -1,6 +1,7 @@
 const express       = require('express');
 const adminRouter   = express.Router();
-const jsonParser    = require('body-parser').json();
+const bodyParser    = require('body-parser');
+const jsonParser    = bodyParser.json();
 const jwt           = require('jsonwebtoken');
 const jwtInfo       = require('../../.jwtinfo').key;
 const path          = require('path');
@@ -17,6 +18,15 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage })
 
 const router = (connection) => {
+
+    adminRouter.use(jsonParser, (req, res, next) => {
+        jwt.verify(req.body.token, jwtInfo, (err, user) => {
+            if (err) return res.status(500).send({error: 'auth error'});
+            if (!user) return res.status(403).send({error: 'unauthorized'});
+            next();
+        });
+    });
+
     adminRouter.post('/uploadPremium', upload.single('video'), (req, res) => {
         connection.query('INSERT INTO videos(video_title, video_headline, video_text, video_url, premium) VALUES(?,?,?,?,?)',
             [
@@ -47,6 +57,10 @@ const router = (connection) => {
                 res.status(200).send(JSON.stringify({success: 'file uploaded'}));
             }
         );
+    });
+
+    adminRouter.post('/getData', (req, res) => {
+        return res.status(200).send(JSON.stringify({success: 'success'}));
     });
 
     return adminRouter;
