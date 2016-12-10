@@ -19,14 +19,6 @@ const upload = multer({ storage: storage })
 
 const router = (connection) => {
 
-    adminRouter.use(jsonParser, (req, res, next) => {
-        jwt.verify(req.body.token, jwtInfo, (err, user) => {
-            if (err) return res.status(500).send({error: 'auth error'});
-            if (!user) return res.status(403).send({error: 'unauthorized'});
-            next();
-        });
-    });
-
     adminRouter.post('/uploadPremium', upload.single('video'), (req, res) => {
         connection.query('INSERT INTO videos(video_title, video_headline, video_text, video_url, premium) VALUES(?,?,?,?,?)',
             [
@@ -59,8 +51,13 @@ const router = (connection) => {
         );
     });
 
-    adminRouter.post('/getData', (req, res) => {
-        return res.status(200).send(JSON.stringify({success: 'success'}));
+    adminRouter.post('/getData', jsonParser, (req, res) => {
+        console.log('adminRouter', req.body);
+        jwt.verify(req.body.token, jwtInfo, (err, user) => {
+            if (err) return res.status(500).send({error: 'auth error'});
+            if (!user) return res.status(403).send({error: 'unauthorized'});
+            return res.status(200).send({success: 'vs'});
+        });
     });
 
     return adminRouter;
