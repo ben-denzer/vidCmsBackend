@@ -1,22 +1,21 @@
 const express           = require('express');
 const app               = express();
-const port              = process.env.PORT || 8001;
+const port              = process.env.PORT || 3005;
 const dbinfo            = require('./.dbinfo');
 const mysql             = require('mysql');
 const connection        = mysql.createConnection(dbinfo);
 const passportConfig    = require('./src/config/passportConfig');
 const path              = require('path');
 passportConfig(app, connection);
-const morgan            = require('morgan');
+// const morgan            = require('morgan');
 
-app.use(morgan('dev'));
+// app.use(morgan('dev'));
 
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
     next();
 });
-
 
 const authRouter = require('./src/routes/authRouter')(connection);
 const adminRouter = require('./src/routes/adminRouter')(connection);
