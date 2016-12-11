@@ -20,7 +20,7 @@ const upload = multer({ storage: storage })
 const router = (connection) => {
 
     adminRouter.post('/uploadPremium', upload.single('video'), (req, res) => {
-        connection.query('INSERT INTO videos(video_title, video_headline, video_text, video_url, premium) VALUES(?,?,?,?,?)',
+        connection.query('INSERT INTO videos(video_title, video_headline, video_text, video_url, premium, video_date) VALUES(?,?,?,?,?,curdate())',
             [
                 req.body.videoTitleVal,
                 req.body.videoHeadlineVal,
@@ -36,7 +36,7 @@ const router = (connection) => {
     });
 
     adminRouter.post('/uploadFree', jsonParser, (req, res) => {
-        connection.query('INSERT INTO videos(video_title, video_headline, video_text, video_url, premium) VALUES(?,?,?,?,?)',
+        connection.query('INSERT INTO videos(video_title, video_headline, video_text, video_url, premium, video_date) VALUES(?,?,?,?,?,curdate())',
             [
                 req.body.videoTitleVal,
                 req.body.videoHeadlineVal,
