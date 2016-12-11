@@ -20,10 +20,10 @@ app.use((req, res, next) => {
 const authRouter = require('./src/routes/authRouter')(connection);
 const adminRouter = require('./src/routes/adminRouter')(connection);
 const publicRouter = require('./src/routes/publicRouter')(connection);
-app.use('/auth', authRouter);
-app.use('/admin', adminRouter);
-app.use('/public', publicRouter);
-app.get('/uploads/:id', (req, res) => {
+app.use('/equinimity/auth', authRouter);
+app.use('/equinimity/admin', adminRouter);
+app.use('/equinimity/public', publicRouter);
+app.get('/equinimity/uploads/:id', (req, res) => {
     res.status(200).sendFile(path.join(__dirname, `/uploads/${req.params.id}`));
 });
 
