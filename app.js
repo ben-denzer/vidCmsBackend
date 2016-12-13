@@ -7,9 +7,8 @@ const connection        = mysql.createConnection(dbinfo);
 const passportConfig    = require('./src/config/passportConfig');
 const path              = require('path');
 passportConfig(app, connection);
-// const morgan            = require('morgan');
 
-// app.use(morgan('dev'));
+process.env.ENV === 'dev' && app.use(require('morgan')('dev'));
 
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
@@ -17,13 +16,15 @@ app.use((req, res, next) => {
     next();
 });
 
+const apiPath = process.env.ENV === 'dev' ? '' : '/equinimity';
+
 const authRouter = require('./src/routes/authRouter')(connection);
 const adminRouter = require('./src/routes/adminRouter')(connection);
 const publicRouter = require('./src/routes/publicRouter')(connection);
-app.use('/equinimity/auth', authRouter);
-app.use('/equinimity/admin', adminRouter);
-app.use('/equinimity/public', publicRouter);
-app.get('/equinimity/uploads/:id', (req, res) => {
+app.use(`${apiPath}/auth`, authRouter);
+app.use(`${apiPath}/admin`, adminRouter);
+app.use(`${apiPath}/public`, publicRouter);
+app.get(`${apiPath}/uploads/:id`, (req, res) => {
     res.status(200).sendFile(path.join(__dirname, `/uploads/${req.params.id}`));
 });
 

@@ -7,7 +7,8 @@ gulp.task('default', function() {
 		script: 'app.js',
 		delayTime: 1,
 		env: {
-			'PORT': 8000
+			'PORT': 8000,
+                        'ENV': 'dev'
 		},
 		watch: jsFiles
 	};
