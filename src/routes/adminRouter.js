@@ -7,6 +7,7 @@ const jwtInfo           = require('../../.jwtinfo').key;
 const path              = require('path');
 const multer            = require('multer');
 const getPlaceholderUrl = require('../services/getPlaceholderUrl');
+const getAdminData      = require('../services/getAdminData');
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -57,11 +58,13 @@ const router = (connection) => {
     });
 
     adminRouter.post('/getData', jsonParser, (req, res) => {
-        console.log('adminRouter', req.body);
         jwt.verify(req.body.token, jwtInfo, (err, user) => {
             if (err) return res.status(500).send({error: 'auth error'});
             if (!user) return res.status(403).send({error: 'unauthorized'});
-            return res.status(200).send({success: 'vs'});
+            getAdminData(connection, (err, data) => {
+                if (err) return res.status(500).send({error: 'db error'});
+                res.status(200).send(JSON.stringify({adminData: data}));
+            })
         });
     });
 
