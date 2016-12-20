@@ -8,6 +8,7 @@ const path              = require('path');
 const multer            = require('multer');
 const getPlaceholderUrl = require('../services/getPlaceholderUrl');
 const getAdminData      = require('../services/getAdminData');
+const removeComments    = require('../services/removeComments');
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -65,6 +66,17 @@ const router = (connection) => {
                 if (err) return res.status(500).send({error: 'db error'});
                 res.status(200).send(JSON.stringify({adminData: data}));
             })
+        });
+    });
+
+    adminRouter.post('/deleteComments', jsonParser, (req, res) => {
+        jwt.verify(req.body.token, jwtInfo, (err, user) => {
+            if (err) return res.status(500).send({error: 'auth error'});
+            if (!user) return res.status(403).send({error: 'unauthorized'});
+            removeComments(connection, req.body.trash, (err, success) => {
+                if (err) return res.status(500).send({error: 'DB Error'});
+                res.status(200).send({success: 'Comments Removed'});
+            });
         });
     });
 
