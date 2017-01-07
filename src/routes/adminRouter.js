@@ -22,6 +22,32 @@ const upload = multer({ storage: storage })
 
 const router = (connection) => {
 
+    adminRouter.post('/uploadBlog', upload.single('image'), (req, res) => {
+        connection.query(
+            'INSERT INTO blogs(blog_title, blog_headline, blog_text, blog_date) VALUES(?,?,?,curdate())',
+            [
+                req.body.blogTitleVal,
+                req.body.blogHeadlineVal,
+                req.body.editorHtml,
+            ],
+            (err, success) => {
+                if (err) return res.status(500).send({error: 'Error saving to Database'});
+                if (req.file) {
+                    connection.query(
+                        'INSERT INTO images(blog_fk, image_url) VALUES(?,?)',
+                        [success.insertId, req.file.filename],
+                        (err, done) => {
+                            if (err) return res.status(500).send({error: 'Error saving to Database'});
+                            res.status(200).send(JSON.stringify({success: 'file uploaded'}));
+                        }
+                    );
+                } else {
+                    res.status(200).send(JSON.stringify({success: 'file uploaded'}));
+                }
+            }
+        );
+    });
+
     adminRouter.post('/uploadPremium', upload.single('video'), (req, res) => {
         connection.query('INSERT INTO videos(video_title, video_headline, video_text, video_url, premium, video_date) VALUES(?,?,?,?,?,curdate())',
             [
