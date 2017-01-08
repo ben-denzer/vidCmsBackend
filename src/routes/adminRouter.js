@@ -24,11 +24,12 @@ const router = (connection) => {
 
     adminRouter.post('/uploadBlog', upload.single('image'), (req, res) => {
         connection.query(
-            'INSERT INTO blogs(blog_title, blog_headline, blog_text, blog_date) VALUES(?,?,?,curdate())',
+            'INSERT INTO blogs(blog_title, blog_headline, blog_text, blog_post_url, blog_date) VALUES(?,?,?,?,curdate())',
             [
                 req.body.blogTitleVal,
                 req.body.blogHeadlineVal,
                 req.body.editorHtml,
+                req.body.blogTitleVal.split(' ').join('-'),
             ],
             (err, success) => {
                 if (err) return res.status(500).send({error: 'Error saving to Database'});
