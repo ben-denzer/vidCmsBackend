@@ -3,6 +3,17 @@ const publicRouter = express.Router();
 const jsonParser = require('body-parser').json();
 
 const router = (connection) => {
+
+    publicRouter.post('/getAllBlogs', (req, res) => {
+        connection.query(
+            'SELECT b.blog_id, b.blog_title, b.blog_headline, b.blog_text, b.blog_date FROM blogs b ORDER BY blog_date DESC',
+            (err, rows) => {
+                if (err) return res.status(500).send({error: 'db error'});
+                res.status(200).send(JSON.stringify(rows));
+            }
+        )
+    });
+
     publicRouter.post('/getAllVideos', (req, res) => {
         connection.query(
             'SELECT v.video_id, v.video_title, v.video_url, v.video_text, v.video_headline,'
