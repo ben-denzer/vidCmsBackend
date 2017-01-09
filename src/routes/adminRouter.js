@@ -23,13 +23,16 @@ const upload = multer({ storage: storage })
 const router = (connection) => {
 
     adminRouter.post('/uploadBlog', upload.single('image'), (req, res) => {
+        const {blogTitleVal, blogHeadlineVal, editorHtml} = req.body;
+        if (!blogTitleVal || !editorHtml) return res.status(500).send({error: 'error'});
+
         connection.query(
             'INSERT INTO blogs(blog_title, blog_headline, blog_text, blog_post_url, blog_date) VALUES(?,?,?,?,curdate())',
             [
-                req.body.blogTitleVal,
-                req.body.blogHeadlineVal,
-                req.body.editorHtml,
-                req.body.blogTitleVal.split(' ').join('-'),
+                blogTitleVal,
+                blogHeadlineVal,
+                editorHtml,
+                blogTitleVal.split(' ').join('-'),
             ],
             (err, success) => {
                 if (err) return res.status(500).send({error: 'Error saving to Database'});
@@ -50,11 +53,14 @@ const router = (connection) => {
     });
 
     adminRouter.post('/uploadPremium', upload.single('video'), (req, res) => {
+        const {videoTitleVal, videoHeadlineVal, editorHtml} = req.body;
+        if (!videoTitleVal || !req.file) return res.status(500).send({error: 'error'});
+
         connection.query('INSERT INTO videos(video_title, video_headline, video_text, video_url, premium, video_date) VALUES(?,?,?,?,?,curdate())',
             [
-                req.body.videoTitleVal,
-                req.body.videoHeadlineVal,
-                req.body.editorHtml,
+                videoTitleVal,
+                videoHeadlineVal,
+                editorHtml,
                 req.file.filename,
                 true
             ],
@@ -66,14 +72,17 @@ const router = (connection) => {
     });
 
     adminRouter.post('/uploadFree', jsonParser, (req, res) => {
-        getPlaceholderUrl(req.body.placeholderUrl, (err, placeholder_url) => {
+        const {videoTitleVal ,videoHeadlineVal, editorHtml, youtubeUrlVal, placeholderUrl} = req.body;
+        if (!videoTitle || !youtubeUrlVal) return res.status(500).send({error: 'error'});
+
+        getPlaceholderUrl(placeholderUrl, (err, placeholder_url) => {
             connection.query('INSERT INTO videos(video_title, video_headline, video_text, video_url,'
             + 'premium, placeholder_url, video_date) VALUES(?,?,?,?,?,?,curdate())',
                 [
-                    req.body.videoTitleVal,
-                    req.body.videoHeadlineVal,
-                    req.body.editorHtml,
-                    req.body.youtubeUrlVal,
+                    videoTitleVal,
+                    videoHeadlineVal,
+                    editorHtml,
+                    youtubeUrlVal,
                     false,
                     placeholder_url
                 ],
