@@ -11,7 +11,17 @@ const router = (connection) => {
                 if (err) return res.status(500).send({error: 'db error'});
                 res.status(200).send(JSON.stringify(rows));
             }
-        )
+        );
+    });
+
+    publicRouter.post('/getAllImages', (req, res) => {
+        connection.query(
+            'SELECT i.image_id, i.blog_fk, i.image_url FROM images i',
+            (err, rows) => {
+                if (err) return res.status(500).send({error: 'db error'});
+                res.status(200).send(JSON.stringify(rows));
+            }
+        );
     });
 
     publicRouter.post('/getAllVideos', (req, res) => {
@@ -37,7 +47,6 @@ const router = (connection) => {
     });
 
     publicRouter.post('/getComments', jsonParser, (req, res) => {
-        console.log(req.body.video_id, 'id');
         connection.query(
             'SELECT u.username, c.comment_text, c.comment_date FROM comments c JOIN users u ON c.user_fk=u.user_id JOIN videos v ON c.video_fk=video_id WHERE c.video_fk=?',
             [req.body.video_id],
@@ -45,7 +54,7 @@ const router = (connection) => {
                 if (err) return res.status(500).send({error: 'db error'});
                 res.status(200).send(JSON.stringify(rows));
             }
-        )
+        );
     });
 
     return publicRouter;
