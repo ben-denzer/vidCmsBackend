@@ -69,7 +69,7 @@ const router = (connection) => {
         jwt.verify(token, jwtInfo, (err, user) => {
             if (err || !user) return res.status(403).send({error: 'unauthorized'});
             resetPw(req, connection, (err, data) => {
-                if (err) return res.status(500).send(JSON.stringify({error: err}));
+                if (err) return res.status(500).send(JSON.stringify({error: 'error'}));
                 res.status(200).send(data);
             });
         });
@@ -80,10 +80,13 @@ const router = (connection) => {
         jwt.verify(token, jwtInfo, (err, user) => {
             if (err || !user) return res.status(403).send({error: 'unauthorized'});
             connection.query(
-                'INSERT INTO comments(comment_text, user_fk, video_fk, comment_date) VALUES(?,?,?,curdate())',
-                [req.body.comment, user.user_id, req.body.video],
+                'INSERT INTO comments(comment_text, user_fk, video_fk, blog_fk, comment_date) VALUES(?,?,?,?,curdate())',
+                [req.body.comment, user.user_id, req.body.video, req.body.blog],
                 (err, success) => {
-                    if (err) return res.send(JSON.stringify({error: 'db error'}));
+                    if (err) {
+                        console.log(err);
+                        return res.status(500).send(JSON.stringify({error: 'db error'}));
+                    }
                     res.status(200).send(JSON.stringify({success: 'comment added'}));
                 }
             );
