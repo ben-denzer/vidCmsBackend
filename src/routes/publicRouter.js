@@ -46,7 +46,18 @@ const router = (connection) => {
         );
     });
 
-    publicRouter.post('/getComments', jsonParser, (req, res) => {
+    publicRouter.post('/getBlogComments', jsonParser, (req, res) => {
+        connection.query(
+            'SELECT u.username, c.comment_text, c.comment_date FROM comments c JOIN users u ON c.user_fk=u.user_id JOIN blogs b ON c.blog_fk=blog_id WHERE c.blog_fk=?',
+            [req.body.blog_id],
+            (err, rows) => {
+                if (err) return res.status(500).send({error: 'db error'});
+                res.status(200).send(JSON.stringify(rows));
+            }
+        );
+    });
+
+    publicRouter.post('/getVideoComments', jsonParser, (req, res) => {
         connection.query(
             'SELECT u.username, c.comment_text, c.comment_date FROM comments c JOIN users u ON c.user_fk=u.user_id JOIN videos v ON c.video_fk=video_id WHERE c.video_fk=?',
             [req.body.video_id],
