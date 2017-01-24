@@ -16,13 +16,22 @@ const getAdminData = (connection, cb) => {
                         (err, rows) => {
                             if (err) return cb({error: 'db error'});
                             allData.comments = rows;
-                            cb(null, allData);
+
+                            connection.query('SELECT b.blog_id, b.blog_title, b.blog_headline, b.blog_text,'
+                                + 'b.blog_text, b.blog_post_url FROM blogs b',
+                                (err, rows) => {
+                                    if (err) return cb({error: 'db error'});
+                                    allData.blogs = rows;
+
+                                    cb(null, allData);
+                                }
+                            );
                         }
-                    )
+                    );
                 }
-            )
+            );
         }
-    )
+    );
 };
 
 module.exports = getAdminData;
