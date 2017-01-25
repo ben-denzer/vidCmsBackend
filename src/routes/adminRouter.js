@@ -24,6 +24,7 @@ const router = (connection) => {
 
     adminRouter.post('/uploadBlog', upload.single('image'), (req, res) => {
         const {blogTitleVal, blogHeadlineVal, editorHtml} = req.body;
+        const blogPostUrl = blogTitleVal.split(' ').join('-');
         if (!blogTitleVal || !editorHtml) return res.status(500).send({error: 'error'});
 
         connection.query(
@@ -32,14 +33,14 @@ const router = (connection) => {
                 blogTitleVal,
                 blogHeadlineVal,
                 editorHtml,
-                blogTitleVal.split(' ').join('-'),
+                blogPostUrl,
             ],
             (err, success) => {
                 if (err) return res.status(500).send({error: 'Error saving to Database'});
                 if (req.file) {
                     connection.query(
                         'INSERT INTO images(blog_fk, image_url) VALUES(?,?)',
-                        [success.insertId, req.file.filename],
+                        [blogPostUrl, req.file.filename],
                         (err, done) => {
                             if (err) return res.status(500).send({error: 'Error saving to Database'});
                             res.status(200).send(JSON.stringify({success: 'file uploaded'}));
