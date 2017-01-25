@@ -3,7 +3,7 @@ const getAdminData = (connection, cb) => {
     const dbPromise = (query) => {
         return new Promise((resolve, reject) => {
             connection.query(query, (err, rows) => {
-                if (err) reject({error: 'db error'});
+                if (err) reject();
                 resolve(rows);
             });
         });
