@@ -4,7 +4,7 @@ const jsonParser = require('body-parser').json();
 
 const router = (connection) => {
 
-    publicRouter.post('/getAllBlogs', (req, res) => {
+    publicRouter.get('/getAllBlogs', (req, res) => {
         connection.query(
             'SELECT b.blog_id, b.blog_title, b.blog_headline, b.blog_text, b.blog_date, blog_post_url FROM blogs b ORDER BY blog_date DESC',
             (err, rows) => {
@@ -14,7 +14,7 @@ const router = (connection) => {
         );
     });
 
-    publicRouter.post('/getAllImages', (req, res) => {
+    publicRouter.get('/getAllImages', (req, res) => {
         connection.query(
             'SELECT i.image_id, i.blog_fk, i.image_url FROM images i',
             (err, rows) => {
@@ -24,7 +24,7 @@ const router = (connection) => {
         );
     });
 
-    publicRouter.post('/getAllVideos', (req, res) => {
+    publicRouter.get('/getAllVideos', (req, res) => {
         connection.query(
             'SELECT v.video_id, v.video_title, v.video_url, v.video_text, v.video_headline,'
             + 'v.premium, v.video_date, v.placeholder_url FROM videos v ORDER BY video_date DESC',
