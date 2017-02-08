@@ -84,7 +84,6 @@ const router = (connection) => {
                 [req.body.comment, user.user_id, req.body.video, req.body.blog],
                 (err, success) => {
                     if (err) {
-                        console.log(err);
                         return res.status(500).send(JSON.stringify({error: 'db error'}));
                     }
                     res.status(200).send(JSON.stringify({success: 'comment added'}));
