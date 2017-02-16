@@ -74,7 +74,7 @@ const router = (connection) => {
 
     adminRouter.post('/uploadFree', jsonParser, (req, res) => {
         const {videoTitleVal ,videoHeadlineVal, editorHtml, youtubeUrlVal, placeholderUrl} = req.body;
-        if (!videoTitle || !youtubeUrlVal) return res.status(500).send({error: 'error'});
+        if (!videoTitleVal || !youtubeUrlVal) return res.status(500).send({error: 'error'});
 
         getPlaceholderUrl(placeholderUrl, (err, placeholder_url) => {
             connection.query('INSERT INTO videos(video_title, video_headline, video_text, video_url,'
