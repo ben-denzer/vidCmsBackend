@@ -14,6 +14,16 @@ const router = (connection) => {
         );
     });
 
+    publicRouter.get('/getAllComments', (req, res) => {
+        connection.query(
+            'SELECT c.comment_id, c.comment_text, c.user_fk, c.comment_date, c.blog_fk, c.video_fk FROM comments c',
+            (err, rows) => {
+                if (err) return res.status(500).send({error: 'db error'});
+                res.status(200).send(JSON.stringify(rows));
+            }
+        )
+    });
+
     publicRouter.get('/getAllImages', (req, res) => {
         connection.query(
             'SELECT i.image_id, i.blog_fk, i.image_url FROM images i',
