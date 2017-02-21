@@ -18,7 +18,7 @@ const router = (connection) => {
         connection.query(
             'SELECT c.comment_id, c.comment_text, c.user_fk, c.comment_date, c.blog_fk, c.video_fk, '
             + 'u.username FROM comments c INNER JOIN users u ON c.user_fk = u.user_id '
-            + 'ORDER BY comment_date DESC',
+            + 'ORDER BY comment_date',
             (err, rows) => {
                 if (err) return res.status(500).send({error: 'db error'});
                 res.status(200).send(JSON.stringify(rows));
