@@ -23,15 +23,15 @@ const upload = multer({ storage: storage })
 const router = (connection) => {
 
     adminRouter.post('/uploadBlog', upload.single('image'), (req, res) => {
-        const {blogTitleVal, blogHeadlineVal, editorHtml} = req.body;
-        const blogPostUrl = blogTitleVal.split(' ').join('-');
-        if (!blogTitleVal || !editorHtml) return res.status(500).send({error: 'error'});
+        const {uploadTitleVal, uploadHeadlineVal, editorHtml} = req.body;
+        const blogPostUrl = uploadTitleVal.split(' ').join('-');
+        if (!uploadTitleVal || !editorHtml) return res.status(500).send({error: 'error'});
 
         connection.query(
             'INSERT INTO blogs(blog_title, blog_headline, blog_text, blog_post_url, blog_date) VALUES(?,?,?,?,curdate())',
             [
-                blogTitleVal,
-                blogHeadlineVal,
+                uploadTitleVal,
+                uploadHeadlineVal,
                 editorHtml,
                 blogPostUrl,
             ],
