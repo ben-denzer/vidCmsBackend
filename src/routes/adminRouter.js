@@ -23,75 +23,96 @@ const upload = multer({ storage: storage })
 const router = (connection) => {
 
     adminRouter.post('/uploadBlog', upload.single('image'), (req, res) => {
-        const {uploadTitleVal, uploadHeadlineVal, editorHtml} = req.body;
-        const blogPostUrl = uploadTitleVal.split(' ').join('-');
-        if (!uploadTitleVal || !editorHtml) return res.status(500).send({error: 'error'});
+        const {editorHtml, token, uploadTitleVal, uploadHeadlineVal} = req.body;
 
-        connection.query(
-            'INSERT INTO blogs(blog_title, blog_headline, blog_text, blog_post_url, blog_date) VALUES(?,?,?,?,curdate())',
-            [
-                uploadTitleVal,
-                uploadHeadlineVal,
-                editorHtml,
-                blogPostUrl,
-            ],
-            (err, success) => {
-                if (err) return res.status(500).send({error: 'Error saving to Database'});
-                if (req.file) {
-                    connection.query(
-                        'INSERT INTO images(blog_fk, image_url) VALUES(?,?)',
-                        [blogPostUrl, req.file.filename],
-                        (err, done) => {
-                            if (err) return res.status(500).send({error: 'Error saving to Database'});
-                            res.status(200).send(JSON.stringify({success: 'file uploaded'}));
-                        }
-                    );
-                } else {
-                    res.status(200).send(JSON.stringify({success: 'file uploaded'}));
+        jwt.verify(token, jwtInfo, (err, user) => {
+            if (err || !user) return res.status(401).send({error: 'unauthorized'});
+
+            const blogPostUrl = uploadTitleVal.split(' ').join('-');
+            if (!uploadTitleVal || !editorHtml) return res.status(500).send({error: 'error'});
+
+            connection.query(
+                'INSERT INTO blogs(blog_title, blog_headline, blog_text, blog_post_url, blog_date) VALUES(?,?,?,?,curdate())',
+                [
+                    uploadTitleVal,
+                    uploadHeadlineVal,
+                    editorHtml,
+                    blogPostUrl,
+                ],
+                (err, success) => {
+                    if (err) return res.status(500).send({error: 'Error saving to Database'});
+                    if (req.file) {
+                        connection.query(
+                            'INSERT INTO images(blog_fk, image_url) VALUES(?,?)',
+                            [blogPostUrl, req.file.filename],
+                            (err, done) => {
+                                if (err) return res.status(500).send({error: 'Error saving to Database'});
+                                res.status(200).send(JSON.stringify({success: 'file uploaded'}));
+                            }
+                        );
+                    } else {
+                        res.status(200).send(JSON.stringify({success: 'file uploaded'}));
+                    }
                 }
-            }
-        );
+            );
+        });
     });
 
     adminRouter.post('/uploadPremium', upload.single('video'), (req, res) => {
-        const {videoTitleVal, videoHeadlineVal, editorHtml} = req.body;
-        if (!videoTitleVal || !req.file) return res.status(500).send({error: 'error'});
+        const {editorHtml, token, videoTitleVal, videoHeadlineVal} = req.body;
 
-        connection.query('INSERT INTO videos(video_title, video_headline, video_text, video_url, premium, video_date) VALUES(?,?,?,?,?,curdate())',
-            [
-                videoTitleVal,
-                videoHeadlineVal,
-                editorHtml,
-                req.file.filename,
-                true
-            ],
-            (err, success) => {
-                if (err) return res.status(500).send({error: 'Error saving to Database'});
-                res.status(200).send(JSON.stringify({success: 'file uploaded'}));
-            }
-        );
-    });
+        jwt.verify(token, jwtInfo, (err, user) => {
+            if (err || !user) return res.status(401).send({error: 'unauthorized'});
 
-    adminRouter.post('/uploadFree', jsonParser, (req, res) => {
-        const {videoTitleVal ,videoHeadlineVal, editorHtml, youtubeUrlVal, placeholderUrl} = req.body;
-        if (!videoTitleVal || !youtubeUrlVal) return res.status(500).send({error: 'error'});
+            if (!videoTitleVal || !req.file) return res.status(500).send({error: 'error'});
 
-        getPlaceholderUrl(placeholderUrl, (err, placeholder_url) => {
-            connection.query('INSERT INTO videos(video_title, video_headline, video_text, video_url,'
-            + 'premium, placeholder_url, video_date) VALUES(?,?,?,?,?,?,curdate())',
+            connection.query('INSERT INTO videos(video_title, video_headline, video_text, video_url, premium, video_date) VALUES(?,?,?,?,?,curdate())',
                 [
                     videoTitleVal,
                     videoHeadlineVal,
                     editorHtml,
-                    youtubeUrlVal,
-                    false,
-                    placeholder_url
+                    req.file.filename,
+                    true
                 ],
-                (err, rows) => {
+                (err, success) => {
                     if (err) return res.status(500).send({error: 'Error saving to Database'});
                     res.status(200).send(JSON.stringify({success: 'file uploaded'}));
                 }
             );
+        });
+    });
+
+    adminRouter.post('/uploadFree', jsonParser, (req, res) => {
+        const {
+            editorHtml,
+            placeholderUrl,
+            token,
+            uploadTitleVal,
+            uploadHeadlineVal,
+            youtubeUrlVal
+        } = req.body;
+
+        jwt.verify(token, jwtInfo, (err, user) => {
+            if (err || !user) return res.status(401).send({error: 'unauthorized'});
+            if (!videoTitleVal || !youtubeUrlVal) return res.status(500).send({error: 'error'});
+
+            getPlaceholderUrl(placeholderUrl, (err, placeholder_url) => {
+                connection.query('INSERT INTO videos(video_title, video_headline, video_text, video_url,'
+                + 'premium, placeholder_url, video_date) VALUES(?,?,?,?,?,?,curdate())',
+                    [
+                        uploadTitleVal,
+                        uploadHeadlineVal,
+                        editorHtml,
+                        youtubeUrlVal,
+                        false,
+                        placeholder_url
+                    ],
+                    (err, rows) => {
+                        if (err) return res.status(500).send({error: 'Error saving to Database'});
+                        res.status(200).send(JSON.stringify({success: 'file uploaded'}));
+                    }
+                );
+            });
         });
     });
 
