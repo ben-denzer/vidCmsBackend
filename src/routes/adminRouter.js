@@ -94,7 +94,7 @@ const router = (connection) => {
 
         jwt.verify(token, jwtInfo, (err, user) => {
             if (err || !user) return res.status(401).send({error: 'unauthorized'});
-            if (!videoTitleVal || !youtubeUrlVal) return res.status(500).send({error: 'error'});
+            if (!uploadTitleVal || !youtubeUrlVal) return res.status(500).send({error: 'error'});
 
             getPlaceholderUrl(placeholderUrl, (err, placeholder_url) => {
                 connection.query('INSERT INTO videos(video_title, video_headline, video_text, video_url,'

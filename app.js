@@ -29,6 +29,8 @@ app.get(`${apiPath}/uploads/:id`, (req, res) => {
 });
 
 app.listen(port, (err) => {
-    if (err) return console.error(err);
-    console.log('listening on ', port);
+    if (process.env.ENV === 'dev') {
+        if (err) return console.error(err);
+        console.log('listening on ', port);
+    }
 });

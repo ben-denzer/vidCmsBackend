@@ -32,7 +32,7 @@ const login = (connection) => {
                         bcrypt.compare(password, rows[0].password, (err, res) => {
                             if (err) return cb({error: 'bcrypt error'});
                             if (res) {
-                                cb(null, {premium: user.premium, admin: user.admin, token: jwt.sign(user, jwtSecret, {})});
+                                cb(null, {premium: user.premium, admin: user.admin, token: jwt.sign(user, jwtSecret, {expiresIn: '2d'})});
                             } else {
                                 cb(null, false);
                             }
