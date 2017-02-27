@@ -59,17 +59,17 @@ const router = (connection) => {
     });
 
     adminRouter.post('/uploadPremium', upload.single('video'), (req, res) => {
-        const {editorHtml, token, videoTitleVal, videoHeadlineVal} = req.body;
+        const {editorHtml, token, uploadTitleVal, uploadHeadlineVal} = req.body;
 
         jwt.verify(token, jwtInfo, (err, user) => {
             if (err || !user) return res.status(401).send({error: 'unauthorized'});
 
-            if (!videoTitleVal || !req.file) return res.status(500).send({error: 'error'});
+            if (!uploadTitleVal || !req.file) return res.status(500).send({error: 'error'});
 
             connection.query('INSERT INTO videos(video_title, video_headline, video_text, video_url, premium, video_date) VALUES(?,?,?,?,?,curdate())',
                 [
-                    videoTitleVal,
-                    videoHeadlineVal,
+                    uploadTitleVal,
+                    uploadHeadlineVal,
                     editorHtml,
                     req.file.filename,
                     true
