@@ -65,7 +65,6 @@ const router = (connection) => {
             if (err || !user) return res.status(401).send({error: 'unauthorized'});
 
             if (!uploadTitleVal || !req.file) return res.status(500).send({error: 'error'});
-
             connection.query('INSERT INTO videos(video_title, video_headline, video_text, video_url, premium, video_date) VALUES(?,?,?,?,?,curdate())',
                 [
                     uploadTitleVal,
@@ -120,9 +119,9 @@ const router = (connection) => {
         jwt.verify(req.body.token, jwtInfo, (err, user) => {
             if (err) return res.status(500).send({error: 'auth error'});
             if (!user) return res.status(403).send({error: 'unauthorized'});
-            getAdminData(connection, (err, data) => {
+            getAdminData(connection, (err, adminData) => {
                 if (err) return res.status(500).send({error: 'db error'});
-                res.status(200).send(JSON.stringify({adminData: data}));
+                res.status(200).send(JSON.stringify(adminData));
             })
         });
     });
