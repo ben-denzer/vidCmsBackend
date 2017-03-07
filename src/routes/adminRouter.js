@@ -22,6 +22,20 @@ const upload = multer({ storage: storage })
 
 const router = (connection) => {
 
+    adminRouter.post('/banUser', jsonParser, (req, res) => {
+        jwt.verify(req.body.token, jwtInfo, (err, user) => {
+            if (err || !user) return res.status(401).send({error: 'unauthorized'});
+            connection.query(
+                'UPDATE users SET banned_user = true WHERE user_id = ?',
+                [req.body.bannedUser],
+                (err, rows) => {
+                    if (err) return res.status(500).send({error: 'db error'});
+                    res.status(200).send({success: 'user banned'});
+                }
+            )
+        })
+    });
+
     adminRouter.post('/uploadBlog', upload.single('image'), (req, res) => {
         const {editorHtml, token, uploadTitleVal, uploadHeadlineVal} = req.body;
 

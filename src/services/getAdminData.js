@@ -11,7 +11,7 @@ const getAdminData = (connection, cb) => {
 
     const getUsers = dbPromise(
         'SELECT u.user_id, u.username, u.email, u.admin, u.premium, u.signup_date,'
-        + 'u.premium_signup_date, u.premium_expiration_date FROM users u'
+        + 'u.premium_signup_date, u.premium_expiration_date, u.banned_user FROM users u'
     );
     const getVideos = dbPromise(
         'SELECT v.video_id, v.video_title, v.video_headline, v.premium, v.video_url,'
