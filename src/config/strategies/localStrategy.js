@@ -13,7 +13,8 @@ const login = (connection) => {
             },
             (username, password, cb) => {
                 connection.query(
-                    'SELECT u.user_id, u.password, u.premium, u.admin FROM users u WHERE u.username = ?',
+                    'SELECT u.user_id, u.password, u.premium, u.admin, u.banned_user '
+                    + 'FROM users u WHERE u.username = ?',
                     [username],
                     (err, rows) => {
                         if (err) {
@@ -21,6 +22,7 @@ const login = (connection) => {
                             cb({error: 'db error'});
                         }
                         if (!rows || !rows.length) return cb(null, false);
+                        if (rows[0].banned_user) return cb(null, false);
 
                         const user = {
                             user_id:    rows[0].user_id,
