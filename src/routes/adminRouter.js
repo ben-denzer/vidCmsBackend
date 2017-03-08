@@ -30,7 +30,15 @@ const router = (connection) => {
                 [req.body.bannedUser],
                 (err, rows) => {
                     if (err) return res.status(500).send({error: 'db error'});
-                    res.status(200).send({success: 'user banned'});
+
+                    connection.query(
+                        'DELETE FROM comments WHERE user_fk = ?',
+                        [req.body.bannedUser],
+                        (err, rows) => {
+                            if (err) return res.status(500).send({error: 'db error'});
+                            res.status(200).send({success: 'user banned'});
+                        }
+                    );
                 }
             )
         })
