@@ -25,7 +25,6 @@ const login = (connection) => {
                         if (rows[0].banned_user) return cb(null, false);
 
                         const user = {
-                            user_id:    rows[0].user_id,
                             premium:    rows[0].premium,
                             admin:      rows[0].admin,
                             username:   rows[0].username

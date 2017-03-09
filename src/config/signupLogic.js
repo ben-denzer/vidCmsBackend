@@ -6,7 +6,7 @@ const jwtSecret = require('../../.jwtinfo').key;
 const signup = (req, connection, cb) => {
     const {username, password, premium} = req.body;
     const email = req.body.email || null;
-    const premiumDate = premium ? 'curdate()' : null;
+    const premiumSignupDate = premium ? 'curdate()' : null;
 
     const success = () => {
         bcrypt.hash(password, 10, (err, hash) => {
@@ -14,7 +14,7 @@ const signup = (req, connection, cb) => {
 
             connection.query(
                 'INSERT INTO users(username, password, email, premium, signup_date, premium_signup_date) VALUES(?,?,?,?,curdate(),?)',
-                [username, hash, email, premium, premiumDate],
+                [username, hash, email, premium, premiumSignupDate],
                 (err, rows) => {
                     if (err) return cb({error: 'db error'});
 
@@ -24,9 +24,18 @@ const signup = (req, connection, cb) => {
                         premium
                     };
 
+                    const userData = {
+                        username,
+                        email,
+                        premium,
+                        premiumSignupDate,
+                        premiumExpirationDate: null,
+                        signupDate: new Date()
+                    };
+
                     req.login(newUser, (err) => {
                         if (err) return cb({error: 'passport error'});
-                        cb(null, jwt.sign(newUser, jwtSecret, {}));
+                        cb(null, jwt.sign(newUser, jwtSecret, {}), userData);
                     });
                 }
             );

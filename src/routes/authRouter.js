@@ -11,15 +11,36 @@ const resetPw           = require('../services/resetPw');
 
 const router = (connection) => {
     authRouter.post('/signup', jsonParser, (req, res) => {
-        signupLogic(req, connection, (err, token) => {
+        signupLogic(req, connection, (err, token, userData) => {
             if (err) return res.status(500).send(err);
             if (token.error === 'username is taken') return res.status(403).send({error: 'username is taken'});
-            res.status(200).send(JSON.stringify({token}));
+            res.status(200).send(JSON.stringify({token, userData}));
         });
     });
 
     authRouter.post('/login', jsonParser, passport.authenticate('local'), (req, res) => {
-        res.status(200).send(JSON.stringify(req.user));
+        connection.query(
+            'SELECT u.user_id, u.email, u.premium, u.premium_signup_date, u.signup_date, u.admin '
+            + 'FROM users u WHERE u.username=?',
+            [req.body.username],
+            (err, rows) => {
+                console.log(err);
+                if (err)    return res.status(500).send({error: 'db error'});
+                if (!rows)  return res.status(401).send({error: 'no user'});
+
+                const userData = {
+                    admin                   : rows[0].admin,
+                    username                : req.body.username,
+                    email                   : rows[0].email,
+                    premium                 : rows[0].premium,
+                    premiumExpirationDate   : null,
+                    premiumSignupDate       : rows[0].premium_signup_date,
+                    signupDate              : rows[0].signup_date
+                };
+
+                res.status(200).send(JSON.stringify({token: req.user.token, userData}));
+            }
+        );
     });
 
     authRouter.post('/getPremiumVideo', jsonParser, (req, res) => {

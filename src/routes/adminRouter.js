@@ -138,6 +138,7 @@ const router = (connection) => {
     });
 
     adminRouter.post('/getData', jsonParser, (req, res) => {
+        console.log(req.body);
         jwt.verify(req.body.token, jwtInfo, (err, user) => {
             if (err) return res.status(500).send({error: 'auth error'});
             if (!user) return res.status(403).send({error: 'unauthorized'});
