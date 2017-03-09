@@ -59,10 +59,16 @@ const router = (connection) => {
     });
 
     authRouter.post('/resetPassword', jsonParser, (req, res) => {
-        sendPasswordReset(req.body.email, connection, (err, data) => {
-            if (err) {
-                return res.status(500).send(err);
+        connection.query(
+            'SELECT u.banned_user FROM users u WHERE email=?',
+            [req.body.email],
+            (err, rows) => {
+                if (err) return res.status(500).send({error: 'db error'});
+                if (rows[0].banned_user) return res.status(403).send({error: 'banned user'});
             }
+        );
+        sendPasswordReset(req.body.email, connection, (err, data) => {
+            if (err) return res.status(500).send({error: 'db error'});
             res.status(200).send({success: 'email sent', data});
         });
     });
@@ -72,7 +78,7 @@ const router = (connection) => {
         jwt.verify(token, jwtInfo, (err, user) => {
             if (err || !user) return res.status(403).send({error: 'unauthorized'});
             resetPw(req, connection, (err, data) => {
-                if (err) return res.status(500).send(JSON.stringify({error: 'error'}));
+                if (err) return res.status(500).send({error: 'db error'});
                 res.status(200).send(data);
             });
         });

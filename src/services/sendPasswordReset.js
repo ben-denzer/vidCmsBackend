@@ -11,7 +11,7 @@ const auth = {
     }
 };
 
-const apiUrl = 'http://localhost:3000/'
+const apiUrl = 'https://bdenzer.xyz/';
 
 const sendMail = (email, connection, cb) => {
 
@@ -21,7 +21,7 @@ const sendMail = (email, connection, cb) => {
         (err, rows) => {
             const usersOnAccount = rows.map(a => a.username).join(', ');
 
-            const token = jwt.sign({email}, jwtInfo, {expiresIn: '30m'}, (err, token) => {
+            const token = jwt.sign({email}, jwtInfo, {expiresIn: '2h'}, (err, token) => {
                 const nodemailerMailgun = nodemailer.createTransport(mg(auth));
 
                 nodemailerMailgun.sendMail({
@@ -29,7 +29,7 @@ const sendMail = (email, connection, cb) => {
                     to: email, // An array if you have multiple recipients.
                     subject: 'Password Reset',
                     'h:Reply-To': 'denzer.ben@gmail.com',
-                    html: `The ${rows.length > 1 ? 'users' : 'user'} associated with your email address ${rows.length > 1 ? 'are' : 'is'} <b>${usersOnAccount}</b>. Here is your password reset link: <a href="${apiUrl}auth/reset/${token}">https://bdenzer.com/projects/flashcards/reset/${token}</a>`,
+                    html: `The ${rows.length > 1 ? 'users' : 'user'} associated with your email address ${rows.length > 1 ? 'are' : 'is'} <b>${usersOnAccount}</b>. Here is your password reset link: <a href="${apiUrl}auth/reset/${token}">${apiUrl}auth/reset/${token}</a>`,
                     }, (err, info) => {
                         if (err) cb(err);
                         cb(null, info);
