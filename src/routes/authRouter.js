@@ -24,7 +24,6 @@ const router = (connection) => {
             + 'FROM users u WHERE u.username=?',
             [req.body.username],
             (err, rows) => {
-                console.log(err);
                 if (err)    return res.status(500).send({error: 'db error'});
                 if (!rows)  return res.status(401).send({error: 'no user'});
 
@@ -62,17 +61,26 @@ const router = (connection) => {
         jwt.verify(req.body.token, jwtInfo, (err, user) => {
             if (err) return res.status(401).send({error: 'session expired, please log in again'});
             connection.query(
-                'SELECT u.username, u.premium, u.admin, u.banned_user FROM users u WHERE u.user_id=?',
-                [user.user_id],
+                'SELECT u.username, u.email, u.premium, u.premium_signup_date, u.signup_date, u.admin, '
+                + 'u.banned_user FROM users u WHERE u.user_id=?',
+                [user.id],
                 (err, rows) => {
                     if (err) return res.status(500).send();
-                    if (rows[0].banned_user) return res.status(401).send({error: 'unauthorized'});
+                    if (rows[0] && rows[0].banned_user) return res.status(401).send({error: 'unauthorized'});
+
+                    const userData = {
+                        admin                   : rows[0].admin,
+                        username                : rows[0].username,
+                        email                   : rows[0].email,
+                        premium                 : rows[0].premium,
+                        premiumExpirationDate   : null,
+                        premiumSignupDate       : rows[0].premium_signup_date,
+                        signupDate              : rows[0].signup_date
+                    };
 
                     res.status(200).send(JSON.stringify({
-                        username:   rows[0].username,
-                        premium:    rows[0].premium,
-                        admin:      rows[0].admin,
-                        token:      req.body.token
+                        token: jwt.sign({id: rows[0].user_id}, jwtInfo, {expiresIn: '2d'}),
+                        userData
                     }));
                 }
             );

@@ -17,12 +17,9 @@ const login = (connection) => {
                     + 'FROM users u WHERE u.username = ?',
                     [username],
                     (err, rows) => {
-                        if (err) {
-                            console.log(err);
-                            cb({error: 'db error'});
-                        }
-                        if (!rows || !rows.length) return cb(null, false);
-                        if (rows[0].banned_user) return cb(null, false);
+                        if (err)                    return cb({error: 'db error'});
+                        if (!rows || !rows.length)  return cb(null, false);
+                        if (rows[0].banned_user)    return cb(null, false);
 
                         const user = {
                             premium:    rows[0].premium,
@@ -33,7 +30,19 @@ const login = (connection) => {
                         bcrypt.compare(password, rows[0].password, (err, res) => {
                             if (err) return cb({error: 'bcrypt error'});
                             if (res) {
-                                cb(null, {premium: user.premium, admin: user.admin, token: jwt.sign(user, jwtSecret, {expiresIn: '2d'})});
+                                cb(
+                                    null,
+                                    {
+                                        premium     : user.premium,
+                                        admin       : user.admin,
+                                        username    : user.username,
+                                        token       : jwt.sign(
+                                            {id: rows[0].user_id},
+                                            jwtSecret,
+                                            {expiresIn: '2d'}
+                                        )
+                                    }
+                                );
                             } else {
                                 cb(null, false);
                             }
