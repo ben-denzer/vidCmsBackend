@@ -66,7 +66,8 @@ const router = (connection) => {
                 [user.id],
                 (err, rows) => {
                     if (err) return res.status(500).send();
-                    if (rows[0] && rows[0].banned_user) return res.status(401).send({error: 'unauthorized'});
+                    if (!rows || !rows.length) return res.status(403).send({error: 'no user'});
+                    if (rows[0].banned_user) return res.status(401).send({error: 'unauthorized'});
 
                     const userData = {
                         admin                   : rows[0].admin,
@@ -94,12 +95,13 @@ const router = (connection) => {
             (err, rows) => {
                 if (err) return res.status(500).send({error: 'db error'});
                 if (rows[0].banned_user) return res.status(403).send({error: 'banned user'});
+
+                sendPasswordReset(req.body.email, connection, (err, data) => {
+                    if (err) return res.status(500).send({error: 'db error'});
+                    res.status(200).send({success: 'email sent', data});
+                });
             }
         );
-        sendPasswordReset(req.body.email, connection, (err, data) => {
-            if (err) return res.status(500).send({error: 'db error'});
-            res.status(200).send({success: 'email sent', data});
-        });
     });
 
     authRouter.post('/reset/:token', jsonParser, (req, res) => {
