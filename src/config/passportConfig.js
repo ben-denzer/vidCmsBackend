@@ -3,7 +3,7 @@ let localStrategy   = require('./strategies/localStrategy');
 
 module.exports = (app, connection) => {
     app.use(passport.initialize());
-    app.use(passport.session());
+    // app.use(passport.session());
 
     passport.serializeUser((user, done) => {
         done(null, user);

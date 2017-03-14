@@ -1,15 +1,41 @@
 const express           = require('express');
+const authRouter        = express.Router();
+const bcrypt            = require('bcrypt');
 const bodyParser        = require('body-parser');
 const jsonParser        = bodyParser.json();
-const signupLogic       = require('../config/signupLogic');
-const authRouter        = express.Router();
-const passport          = require('passport');
 const jwt               = require('jsonwebtoken');
 const jwtInfo           = require('../../.jwtinfo').key;
+const passport          = require('passport');
+
+const signupLogic       = require('../config/signupLogic');
 const sendPasswordReset = require('../services/sendPasswordReset');
 const resetPw           = require('../services/resetPw');
 
 const router = (connection) => {
+
+    authRouter.post('/changePw', jsonParser, passport.authenticate('local'), (req, res) => {
+        const {token, username, password, newPw} = req.body;
+
+        if (newPw.length > 7) return res.status(403).send({error: 'password too short'});
+
+        jwt.verify(token, jwtInfo, (err, user) => {
+            if (err || !user) return res.status(401).send({error: 'unauthorized'});
+
+            bcrypt.hash(newPw, 10, (err, hash) => {
+                if (err) return res.status(500).send({error: 'hashing error'});
+
+                connection.query(
+                    'UPDATE users SET password=? WHERE username=?',
+                    [hash, username],
+                    (err, rows) => {
+                        if (err) return res.status(500).send({error: 'db error'});
+                        return res.status(200).send({success: 'Changed Password'});
+                    }
+                );
+            });
+        });
+    });
+
     authRouter.post('/signup', jsonParser, (req, res) => {
         signupLogic(req, connection, (err, token, userData) => {
             if (err) return res.status(500).send(err);
@@ -80,7 +106,11 @@ const router = (connection) => {
                     };
 
                     res.status(200).send(JSON.stringify({
-                        token: jwt.sign({id: rows[0].user_id}, jwtInfo, {expiresIn: '2d'}),
+                        token: jwt.sign(
+                            {id: rows[0].user_id},
+                            jwtInfo,
+                            {expiresIn: '2d'}
+                        ),
                         userData
                     }));
                 }
