@@ -133,9 +133,10 @@ const router = (connection) => {
             if (err || !user) return res.status(403).send({error: 'unauthorized'});
             connection.query(
                 'INSERT INTO comments(comment_text, user_fk, video_fk, blog_fk, comment_date) VALUES(?,?,?,?,curdate())',
-                [req.body.comment, user.user_id, req.body.video, req.body.blog],
+                [req.body.comment, user.id, req.body.video, req.body.blog],
                 (err, success) => {
                     if (err) {
+                        console.log(err);
                         return res.status(500).send(JSON.stringify({error: 'db error'}));
                     }
                     res.status(200).send(JSON.stringify({success: 'comment added'}));

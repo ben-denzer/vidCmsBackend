@@ -18,25 +18,18 @@ const signup = (req, connection, cb) => {
                 (err, rows) => {
                     if (err) return cb({error: 'db error'});
 
-                    let newUser = {
-                        username,
-                        user_id: rows.insertId,
-                        premium
-                    };
-
                     const userData = {
-                        username,
+                        admin                   : false,
                         email,
                         premium,
+                        premiumExpirationDate   : null,
                         premiumSignupDate,
-                        premiumExpirationDate: null,
-                        signupDate: new Date()
+                        signupDate              : new Date(),
+                        username,
+                        user_id                 : rows.insertId
                     };
 
-                    req.login(newUser, (err) => {
-                        if (err) return cb({error: 'passport error'});
-                        cb(null, jwt.sign(newUser, jwtSecret, {}), userData);
-                    });
+                    cb(null, jwt.sign({id: userData.user_id}, jwtSecret, {expiresIn: '2d'}), userData);
                 }
             );
         });
