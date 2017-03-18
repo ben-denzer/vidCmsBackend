@@ -13,23 +13,32 @@ const signup = (req, connection, cb) => {
             if (err) return cb({error: 'hashing error'});
 
             connection.query(
-                'INSERT INTO users(username, password, email, premium, signup_date, premium_signup_date) VALUES(?,?,?,?,curdate(),?)',
+                'INSERT INTO users(username, password, email, premium, signup_date, '
+                + 'premium_signup_date) VALUES(?,?,?,?,curdate(),?)',
                 [username, hash, email, premium, premiumSignupDate],
                 (err, rows) => {
                     if (err) return cb({error: 'db error'});
 
                     const userData = {
-                        admin                   : false,
+                        admin: false,
                         email,
                         premium,
-                        premiumExpirationDate   : null,
+                        premiumExpirationDate: null,
                         premiumSignupDate,
-                        signupDate              : new Date(),
+                        signupDate: new Date(),
                         username,
-                        user_id                 : rows.insertId
+                        user_id: rows.insertId
                     };
 
-                    cb(null, jwt.sign({id: userData.user_id}, jwtSecret, {expiresIn: '2d'}), userData);
+                    cb(
+                        null,
+                        jwt.sign(
+                            {id: userData.user_id},
+                            jwtSecret,
+                            {expiresIn: '2d'}
+                        ),
+                        userData
+                    );
                 }
             );
         });
