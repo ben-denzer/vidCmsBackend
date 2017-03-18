@@ -45,27 +45,8 @@ const router = (connection) => {
     });
 
     authRouter.post('/login', jsonParser, passport.authenticate('local'), (req, res) => {
-        connection.query(
-            'SELECT u.user_id, u.email, u.premium, u.premium_signup_date, u.signup_date, u.admin '
-            + 'FROM users u WHERE u.username=?',
-            [req.body.username],
-            (err, rows) => {
-                if (err)    return res.status(500).send({error: 'db error'});
-                if (!rows)  return res.status(401).send({error: 'no user'});
-
-                const userData = {
-                    admin                   : rows[0].admin,
-                    username                : req.body.username,
-                    email                   : rows[0].email,
-                    premium                 : rows[0].premium,
-                    premiumExpirationDate   : null,
-                    premiumSignupDate       : rows[0].premium_signup_date,
-                    signupDate              : rows[0].signup_date
-                };
-
-                res.status(200).send(JSON.stringify({token: req.user.token, userData}));
-            }
-        );
+        const {token, userData} = req.user;
+        res.status(200).send(JSON.stringify({token, userData}));
     });
 
     authRouter.post('/getPremiumVideo', jsonParser, (req, res) => {
@@ -87,22 +68,23 @@ const router = (connection) => {
         jwt.verify(req.body.token, jwtInfo, (err, user) => {
             if (err) return res.status(401).send({error: 'session expired, please log in again'});
             connection.query(
-                'SELECT u.username, u.email, u.premium, u.premium_signup_date, u.signup_date, u.admin, '
-                + 'u.banned_user FROM users u WHERE u.user_id=?',
+                'SELECT u.user_id, u.username, u.email, u.premium, u.premium_signup_date, '
+                + 'u.signup_date, u.admin, u.banned_user FROM users u WHERE u.user_id=?',
                 [user.id],
                 (err, rows) => {
-                    if (err) return res.status(500).send();
+                    if (err) return res.status(500).send({error: 'db error'});
                     if (!rows || !rows.length) return res.status(403).send({error: 'no user'});
                     if (rows[0].banned_user) return res.status(401).send({error: 'unauthorized'});
 
                     const userData = {
                         admin                   : rows[0].admin,
-                        username                : rows[0].username,
                         email                   : rows[0].email,
                         premium                 : rows[0].premium,
                         premiumExpirationDate   : null,
                         premiumSignupDate       : rows[0].premium_signup_date,
-                        signupDate              : rows[0].signup_date
+                        signupDate              : rows[0].signup_date,
+                        username                : rows[0].username,
+                        user_id                 : user.id
                     };
 
                     res.status(200).send(JSON.stringify({
