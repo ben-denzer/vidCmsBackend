@@ -66,7 +66,7 @@ const router = (connection) => {
                     if (req.file) {
                         connection.query(
                             'INSERT INTO images(blog_fk, image_url) VALUES(?,?)',
-                            [blogPostUrl, req.file.filename],
+                            [success.insertId, req.file.filename],
                             (err, done) => {
                                 if (err) return res.status(500).send({error: 'Error saving to Database'});
                                 res.status(200).send(JSON.stringify({success: 'file uploaded'}));
