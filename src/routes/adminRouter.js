@@ -25,7 +25,7 @@ const upload = multer({ storage: storage });
 const router = (connection) => {
 
     adminRouter.post('/banUser', jsonParser, (req, res) => {
-        jwt.verify(req.body.token, jwtInfo, (err, user) => {
+        verifyAdmin(connection, req.body.token, (err, user) => {
             if (err || !user) return res.status(401).send({error: 'unauthorized'});
             connection.query(
                 'UPDATE users SET banned_user = true WHERE user_id = ?',
@@ -69,7 +69,7 @@ const router = (connection) => {
     adminRouter.post('/uploadBlog', upload.single('image'), (req, res) => {
         const {editorHtml, token, uploadTitleVal, uploadHeadlineVal} = req.body;
 
-        jwt.verify(token, jwtInfo, (err, user) => {
+        verifyAdmin(connection, token, (err, user) => {
             if (err || !user) return res.status(401).send({error: 'unauthorized'});
 
             const blogPostUrl = uploadTitleVal.split(' ').join('-');
@@ -105,7 +105,7 @@ const router = (connection) => {
     adminRouter.post('/uploadPremium', upload.single('video'), (req, res) => {
         const {editorHtml, token, uploadTitleVal, uploadHeadlineVal} = req.body;
 
-        jwt.verify(token, jwtInfo, (err, user) => {
+        verifyAdmin(connection, token, (err, user) => {
             if (err || !user) return res.status(401).send({error: 'unauthorized'});
 
             if (!uploadTitleVal || !req.file) return res.status(500).send({error: 'error'});
@@ -135,7 +135,7 @@ const router = (connection) => {
             youtubeUrlVal
         } = req.body;
 
-        jwt.verify(token, jwtInfo, (err, user) => {
+        verifyAdmin(connection, token, (err, user) => {
             if (err || !user) return res.status(401).send({error: 'unauthorized'});
             if (!uploadTitleVal || !youtubeUrlVal) return res.status(500).send({error: 'error'});
 
@@ -160,7 +160,7 @@ const router = (connection) => {
     });
 
     adminRouter.post('/getData', jsonParser, (req, res) => {
-        jwt.verify(req.body.token, jwtInfo, (err, user) => {
+        verifyAdmin(connection, req.body.token, (err, user) => {
             if (err) return res.status(500).send({error: 'auth error'});
             if (!user) return res.status(403).send({error: 'unauthorized'});
 
@@ -172,7 +172,7 @@ const router = (connection) => {
     });
 
     adminRouter.post('/deleteComments', jsonParser, (req, res) => {
-        jwt.verify(req.body.token, jwtInfo, (err, user) => {
+        verifyAdmin(connection, req.body.token, (err, user) => {
             if (err) return res.status(500).send({error: 'auth error'});
             if (!user) return res.status(403).send({error: 'unauthorized'});
 
