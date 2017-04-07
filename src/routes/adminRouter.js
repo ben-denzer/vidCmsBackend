@@ -9,6 +9,7 @@ const multer            = require('multer');
 const getPlaceholderUrl = require('../services/getPlaceholderUrl');
 const getAdminData      = require('../services/getAdminData');
 const removeComments    = require('../services/removeComments');
+const verifyAdmin       = require('../services/verifyAdmin');
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -17,8 +18,9 @@ const storage = multer.diskStorage({
     filename: function (req, file, cb) {
         cb(null, file.fieldname + '-' + Date.now());
     }
-})
-const upload = multer({ storage: storage })
+});
+
+const upload = multer({ storage: storage });
 
 const router = (connection) => {
 
@@ -42,6 +44,26 @@ const router = (connection) => {
                 }
             )
         })
+    });
+
+    adminRouter.post('/editBlog', jsonParser, (req, res) => {
+        const {editorHtml, token, uploadTitleVal, uploadHeadlineVal} = req.body;
+        verifyAdmin(connection, token, (err, user) => {
+            if (err || !user) return res.status(401).send({error: 'unauthorized'});
+            connection.query(
+                'UPDATE blogs SET blog_title=?, blog_headline=?, blog_text=? WHERE blog_id=?',
+                [
+                    req.body.uploadTitleVal,
+                    req.body.uploadHeadlineVal,
+                    req.body.editorHtml,
+                    req.body.blogId
+                ],
+                (err, rows) => {
+                    if (err) return res.status(500).send({error: 'db error'});
+                    res.status(200).send({success: 'Updated Post'});
+                }
+            )
+        });
     });
 
     adminRouter.post('/uploadBlog', upload.single('image'), (req, res) => {
@@ -141,6 +163,7 @@ const router = (connection) => {
         jwt.verify(req.body.token, jwtInfo, (err, user) => {
             if (err) return res.status(500).send({error: 'auth error'});
             if (!user) return res.status(403).send({error: 'unauthorized'});
+
             getAdminData(connection, (err, adminData) => {
                 if (err) return res.status(500).send({error: 'db error'});
                 res.status(200).send(JSON.stringify(adminData));
@@ -152,6 +175,7 @@ const router = (connection) => {
         jwt.verify(req.body.token, jwtInfo, (err, user) => {
             if (err) return res.status(500).send({error: 'auth error'});
             if (!user) return res.status(403).send({error: 'unauthorized'});
+
             removeComments(connection, req.body.trash, (err, success) => {
                 if (err) return res.status(500).send({error: 'DB Error'});
                 res.status(200).send({success: 'Comments Removed'});
