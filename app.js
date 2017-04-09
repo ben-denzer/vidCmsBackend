@@ -10,8 +10,10 @@ passportConfig(app, connection);
 
 process.env.ENV === 'dev' && app.use(require('morgan')('dev'));
 
+const domain = process.env.ENV === 'dev' ? 'http://localhost:3000' : 'https://bdenzer.xyz';
+
 app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Origin', domain);
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
     next();
 });
