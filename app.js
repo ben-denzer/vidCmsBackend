@@ -18,15 +18,13 @@ app.use((req, res, next) => {
     next();
 });
 
-const apiPath = process.env.ENV === 'dev' ? '' : '/equinimity';
-
-const authRouter = require('./src/routes/authRouter')(connection);
-const adminRouter = require('./src/routes/adminRouter')(connection);
-const publicRouter = require('./src/routes/publicRouter')(connection);
-app.use(`${apiPath}/auth`, authRouter);
-app.use(`${apiPath}/admin`, adminRouter);
-app.use(`${apiPath}/public`, publicRouter);
-app.get(`${apiPath}/uploads/:id`, (req, res) => {
+const authRouter    = require('./src/routes/authRouter')(connection);
+const adminRouter   = require('./src/routes/adminRouter')(connection);
+const publicRouter  = require('./src/routes/publicRouter')(connection);
+app.use('/auth', authRouter);
+app.use('/admin', adminRouter);
+app.use('/public', publicRouter);
+app.get('/uploads/:id', (req, res) => {
     res.status(200).sendFile(path.join(__dirname, `/uploads/${req.params.id}`));
 });
 
