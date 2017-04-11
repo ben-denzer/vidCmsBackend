@@ -47,7 +47,7 @@ const router = (connection) => {
         );
     });
 
-    publicRouter.post('/getFreeVideo', jsonParser, (req, res) => {
+    publicRouter.get('/getFreeVideo', jsonParser, (req, res) => {
         connection.query(
             'SELECT v.video_title, v.video_headline, v.video_url, v.video_text FROM videos v WHERE v.video_id = ?',
             [req.body.id],
@@ -58,7 +58,7 @@ const router = (connection) => {
         );
     });
 
-    publicRouter.post('/getBlogComments', jsonParser, (req, res) => {
+    publicRouter.get('/getBlogComments', jsonParser, (req, res) => {
         connection.query(
             'SELECT u.username, c.comment_text, c.comment_date FROM comments c JOIN users u ON c.user_fk=u.user_id JOIN blogs b ON c.blog_fk=b.blog_post_url WHERE c.blog_fk=?',
             [req.body.blog_post_url],
@@ -69,7 +69,7 @@ const router = (connection) => {
         );
     });
 
-    publicRouter.post('/getVideoComments', jsonParser, (req, res) => {
+    publicRouter.get('/getVideoComments', jsonParser, (req, res) => {
         connection.query(
             'SELECT u.username, c.comment_text, c.comment_date FROM comments c JOIN users u ON c.user_fk=u.user_id JOIN videos v ON c.video_fk=video_title WHERE v.video_id=?',
             [req.body.video_id],

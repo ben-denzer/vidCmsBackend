@@ -10,19 +10,19 @@ passportConfig(app, connection);
 
 process.env.ENV === 'dev' && app.use(require('morgan')('dev'));
 
-const domain = process.env.ENV === 'dev' ? 'http://localhost:3000' : 'https://bdenzer.xyz';
+const domain = process.env.ENV === 'dev' ? 'http://localhost:3000' : 'http://localhost';
 
 app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', domain);
+    res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
     next();
 });
 
 const apiPath = process.env.ENV === 'dev' ? '' : '/equinimity';
 
-const authRouter = require('./src/routes/authRouter')(connection);
-const adminRouter = require('./src/routes/adminRouter')(connection);
-const publicRouter = require('./src/routes/publicRouter')(connection);
+const authRouter    = require('./src/routes/authRouter')(connection);
+const adminRouter   = require('./src/routes/adminRouter')(connection);
+const publicRouter  = require('./src/routes/publicRouter')(connection);
 app.use(`${apiPath}/auth`, authRouter);
 app.use(`${apiPath}/admin`, adminRouter);
 app.use(`${apiPath}/public`, publicRouter);
