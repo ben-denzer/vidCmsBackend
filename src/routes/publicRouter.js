@@ -23,7 +23,7 @@ const router = (connection) => {
                 if (err) return res.status(500).send({error: 'db error'});
                 res.status(200).send(JSON.stringify(rows));
             }
-        )
+        );
     });
 
     publicRouter.get('/getAllImages', (req, res) => {

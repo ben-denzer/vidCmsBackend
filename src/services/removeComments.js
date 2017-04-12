@@ -9,7 +9,7 @@ const removeComments = (connection, trash, cb) => {
             );
         });
     };
-    Promise.all(trash.map(a => sendToDB(a))).then(
+    Promise.all(trash.map(sendToDB)).then(
         () => cb(null, JSON.stringify({ success: 'removed item' })),
         (err) => cb(err)
     );

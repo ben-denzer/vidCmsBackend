@@ -159,7 +159,7 @@ const router = (connection) => {
         });
     });
 
-    adminRouter.get('/getData', jsonParser, (req, res) => {
+    adminRouter.post('/getData', jsonParser, (req, res) => {
         verifyAdmin(connection, req.body.token, (err, user) => {
             if (err) return res.status(500).send({error: 'auth error'});
             if (!user) return res.status(403).send({error: 'unauthorized'});
