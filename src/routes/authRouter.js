@@ -67,6 +67,7 @@ const router = (connection) => {
     authRouter.post('/loginWithToken', jsonParser, (req, res) => {
         jwt.verify(req.body.token, jwtInfo, (err, user) => {
             if (err) return res.status(401).send({error: 'session expired, please log in again'});
+
             connection.query(
                 'SELECT u.user_id, u.username, u.email, u.premium, u.premium_signup_date, '
                 + 'u.signup_date, u.admin, u.banned_user FROM users u WHERE u.user_id=?',

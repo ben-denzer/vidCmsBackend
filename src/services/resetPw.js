@@ -1,15 +1,15 @@
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const jwtInfo = require('../../.jwtinfo').key;
+const bcrypt    = require('bcrypt');
+const jwt       = require('jsonwebtoken');
+const jwtInfo   = require('../../.jwtinfo').key;
 
 const resetPw = (req, connection, cb) => {
     connection.query(
         'SELECT u.banned_user FROM users u WHERE u.username=?',
         [req.body.username],
         (err, rows) => {
-            if (err) return cb({error: 'db error 0'});
-            if (!rows || !rows.length) return cb({error: 'no user'});
-            if (rows[0].banned_user) return cb({error: 'banned user'});
+            if (err)                    return cb({error: 'db error 0'});
+            if (!rows || !rows.length)  return cb({error: 'no user'});
+            if (rows[0].banned_user)    return cb({error: 'banned user'});
         }
     );
 
@@ -19,10 +19,12 @@ const resetPw = (req, connection, cb) => {
             [hash, req.body.username],
             (err, success) => {
                 if (err) return cb({error: 'db error 1'});
+
                 connection.query('SELECT u.user_id, u.admin, u.premium FROM users u WHERE u.username=?',
                     [req.body.username],
                     (err, rows) => {
                         if (err) return cb({error: 'db error 2'});
+
                         cb(null, JSON.stringify({
                             username: req.body.username,
                             admin: rows[0].admin,
