@@ -1,6 +1,6 @@
-const express = require('express');
-const publicRouter = express.Router();
-const jsonParser = require('body-parser').json();
+const express       = require('express');
+const publicRouter  = express.Router();
+const jsonParser    = require('body-parser').json();
 
 const router = (connection) => {
 
@@ -47,10 +47,10 @@ const router = (connection) => {
         );
     });
 
-    publicRouter.get('/getFreeVideo', jsonParser, (req, res) => {
+    publicRouter.get('/getBlogComments', jsonParser, (req, res) => {
         connection.query(
-            'SELECT v.video_title, v.video_headline, v.video_url, v.video_text FROM videos v WHERE v.video_id = ?',
-            [req.body.id],
+            'SELECT u.username, c.comment_text, c.comment_date FROM comments c JOIN users u ON c.user_fk=u.user_id JOIN blogs b ON c.blog_fk=b.blog_post_url WHERE c.blog_fk=?',
+            [req.body.blog_post_url],
             (err, rows) => {
                 if (err) return res.status(500).send({error: 'db error'});
                 res.status(200).send(JSON.stringify(rows));
@@ -58,10 +58,10 @@ const router = (connection) => {
         );
     });
 
-    publicRouter.get('/getBlogComments', jsonParser, (req, res) => {
+    publicRouter.get('/getFreeVideo', jsonParser, (req, res) => {
         connection.query(
-            'SELECT u.username, c.comment_text, c.comment_date FROM comments c JOIN users u ON c.user_fk=u.user_id JOIN blogs b ON c.blog_fk=b.blog_post_url WHERE c.blog_fk=?',
-            [req.body.blog_post_url],
+            'SELECT v.video_title, v.video_headline, v.video_url, v.video_text FROM videos v WHERE v.video_id = ?',
+            [req.body.id],
             (err, rows) => {
                 if (err) return res.status(500).send({error: 'db error'});
                 res.status(200).send(JSON.stringify(rows));
