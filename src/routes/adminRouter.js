@@ -47,22 +47,30 @@ const router = (connection) => {
     });
 
     adminRouter.post('/editBlog', jsonParser, (req, res) => {
-        const {editorHtml, token, uploadTitleVal, uploadHeadlineVal} = req.body;
+        const {blogId, editorHtml, token, uploadTitleVal, uploadHeadlineVal} = req.body;
         verifyAdmin(connection, token, (err, user) => {
             if (err || !user) return res.status(401).send({error: 'unauthorized'});
             connection.query(
                 'UPDATE blogs SET blog_title=?, blog_headline=?, blog_text=? WHERE blog_id=?',
                 [
-                    req.body.uploadTitleVal,
-                    req.body.uploadHeadlineVal,
-                    req.body.editorHtml,
-                    req.body.blogId
+                    uploadTitleVal,
+                    uploadHeadlineVal,
+                    editorHtml,
+                    blogId
                 ],
                 (err, rows) => {
                     if (err) return res.status(500).send({error: 'db error'});
                     res.status(200).send({success: 'Updated Post'});
                 }
             )
+        });
+    });
+
+    adminRouter.post('/editImage', upload.single('image'), (req, res) => {
+        const {blogId, token} = req.body;
+
+        verifyAdmin(connection, token, (err, user) => {
+            console.log('verified');
         });
     });
 
