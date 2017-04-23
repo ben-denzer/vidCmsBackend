@@ -3,7 +3,7 @@ const assert = require('assert');
 const request = require('request');
 const app = require('../../app');
 const baseUrl = 'http://localhost:3005/'
-
+const publicRouter = require('../routes/publicRouter.test');
 
 describe('FIRST TESTS', function() {
     describe('GET ALL BLOGS', function() {
