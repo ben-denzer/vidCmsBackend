@@ -10,7 +10,7 @@ passportConfig(app, connection);
 
 process.env.ENV === 'dev' && app.use(require('morgan')('dev'));
 
-const domain = process.env.ENV === 'dev' ? 'http://localhost:3000' : 'http://localhost';
+const domain = process.env.ENV === 'dev' ? 'http://localhost' : 'http://localhost:3005';
 
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
@@ -18,7 +18,7 @@ app.use((req, res, next) => {
     next();
 });
 
-const apiPath = process.env.ENV && process.env.ENV === 'dev' ? '' : '/cmsReact';
+const apiPath = process.env.ENV && process.env.ENV === 'production' ? '/cmsReact' : '';
 
 const authRouter    = require('./src/routes/authRouter')(connection);
 const adminRouter   = require('./src/routes/adminRouter')(connection);
@@ -30,9 +30,11 @@ app.get(`${apiPath}/uploads/:id`, (req, res) => {
     res.status(200).sendFile(path.join(__dirname, `/uploads/${req.params.id}`));
 });
 
-app.listen(port, (err) => {
+const server = app.listen(port, (err) => {
     if (process.env.ENV === 'dev') {
         if (err) return console.error(err);
         console.log('listening on ', port);
     }
 });
+
+module.exports.closeServer = () => { server.close };
