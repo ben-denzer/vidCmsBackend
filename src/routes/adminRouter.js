@@ -47,14 +47,15 @@ const router = (connection) => {
     });
 
     adminRouter.post('/editBlog', jsonParser, (req, res) => {
-        const {blogId, editorHtml, token, uploadTitleVal, uploadHeadlineVal} = req.body;
+        const {blogId, editorHtml, token, seoDescriptionVal, uploadTitleVal, uploadHeadlineVal} = req.body;
         verifyAdmin(connection, token, (err, user) => {
             if (err || !user) return res.status(401).send({error: 'unauthorized'});
             connection.query(
-                'UPDATE blogs SET blog_title=?, blog_headline=?, blog_text=? WHERE blog_id=?',
+                'UPDATE blogs SET blog_title=?, blog_headline=?, blog_seo_description=?, blog_text=? WHERE blog_id=?',
                 [
                     uploadTitleVal,
                     uploadHeadlineVal,
+                    seoDescriptionVal,
                     editorHtml,
                     blogId
                 ],
@@ -89,7 +90,7 @@ const router = (connection) => {
     });
 
     adminRouter.post('/uploadBlog', upload.single('image'), (req, res) => {
-        const {editorHtml, token, uploadTitleVal, uploadHeadlineVal} = req.body;
+        const {editorHtml, token, seoDescriptionVal, uploadTitleVal, uploadHeadlineVal} = req.body;
 
         verifyAdmin(connection, token, (err, user) => {
             if (err || !user) return res.status(401).send({error: 'unauthorized'});
@@ -98,14 +99,16 @@ const router = (connection) => {
             if (!uploadTitleVal || !editorHtml) return res.status(500).send({error: 'error'});
 
             connection.query(
-                'INSERT INTO blogs(blog_title, blog_headline, blog_text, blog_post_url, blog_date) VALUES(?,?,?,?,curdate())',
+                'INSERT INTO blogs(blog_title, blog_headline, blog_seo_description, blog_text, blog_post_url, blog_date) VALUES(?,?,?,?,?,curdate())',
                 [
                     uploadTitleVal,
                     uploadHeadlineVal,
+                    seoDescriptionVal,
                     editorHtml,
                     blogPostUrl,
                 ],
                 (err, success) => {
+                    if (err) console.log(err);
                     if (err) return res.status(500).send({error: 'Error saving to Database'});
                     if (req.file) {
                         connection.query(
