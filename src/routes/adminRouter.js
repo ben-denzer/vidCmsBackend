@@ -68,9 +68,23 @@ const router = (connection) => {
 
     adminRouter.post('/editImage', upload.single('image'), (req, res) => {
         const {blogId, token} = req.body;
-
         verifyAdmin(connection, token, (err, user) => {
-            console.log('verified');
+            connection.query(
+                'DELETE FROM images WHERE blog_fk=?',
+                [blogId],
+                (err, rows) => {
+                    if (err) return res.status(500).send({error: 'db error'});
+
+                    connection.query(
+                        'INSERT INTO images(blog_fk, image_url) VALUES(?,?)',
+                        [blogId, req.file.filename],
+                        (err, success) => {
+                            if (err) return res.status(500).send({error: 'db error'});
+                            res.status(200).send(JSON.stringify({success: 'image changed'}));
+                        }
+                    );
+                }
+            );
         });
     });
 
