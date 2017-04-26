@@ -4,6 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "node app.js",
+    "start-dev": "npm run gulp",
+    "gulp": "gulp",
     "test": "mocha src/tests/test.js"
   },
   "author": "",

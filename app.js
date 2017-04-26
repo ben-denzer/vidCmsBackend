@@ -18,7 +18,7 @@ app.use((req, res, next) => {
     next();
 });
 
-const apiPath = process.env.ENV && process.env.ENV === 'production' ? '/cmsReact' : '';
+const apiPath = process.env.ENV && process.env.ENV === 'production' ? '/api' : '';
 
 const authRouter    = require('./src/routes/authRouter')(connection);
 const adminRouter   = require('./src/routes/adminRouter')(connection);
