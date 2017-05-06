@@ -22,7 +22,7 @@ const router = (connection) => {
             if (err || !user) return res.status(401).send({error: 'unauthorized'});
 
             bcrypt.hash(newPw, 10, (err, hash) => {
-                if (err) return res.status(500).send({error: 'hashing error'});
+                if (err) return res.status(500).send({error: 'server error'});
 
                 connection.query(
                     'UPDATE users SET password=? WHERE username=?',
@@ -57,7 +57,7 @@ const router = (connection) => {
                 'SELECT v.video_title, v.video_headline, v.video_url, v.video_text FROM videos v WHERE v.video_id = ?',
                 [video_id],
                 (err, rows) => {
-                    if (err) return res.status(500).send({error: 'db error'});
+                    if (err) return res.status(500).send({error: 'server error'});
                     res.status(200).send(JSON.stringify(rows));
                 }
             );
@@ -73,8 +73,8 @@ const router = (connection) => {
                 + 'u.signup_date, u.admin, u.banned_user FROM users u WHERE u.user_id=?',
                 [user.id],
                 (err, rows) => {
-                    if (err) return res.status(500).send({error: 'db error'});
-                    if (!rows || !rows.length) return res.status(403).send({error: 'no user'});
+                    if (err) return res.status(500).send({error: 'server error'});
+                    if (!rows || !rows.length) return res.status(403).send({error: 'unauthorized'});
                     if (rows[0].banned_user) return res.status(401).send({error: 'unauthorized'});
 
                     const userData = {
@@ -106,7 +106,7 @@ const router = (connection) => {
             'SELECT u.banned_user FROM users u WHERE email=?',
             [req.body.email],
             (err, rows) => {
-                if (err) return res.status(500).send({error: 'db error'});
+                if (err) return res.status(500).send({error: 'server error'});
                 if (rows[0].banned_user) return res.status(403).send({error: 'banned user'});
 
                 sendPasswordReset(req.body.email, connection, (err, data) => {
@@ -122,7 +122,7 @@ const router = (connection) => {
         jwt.verify(token, jwtInfo, (err, user) => {
             if (err || !user) return res.status(403).send({error: 'unauthorized'});
             resetPw(req, connection, (err, data) => {
-                if (err) return res.status(500).send({error: 'db error'});
+                if (err) return res.status(500).send({error: 'server error'});
                 res.status(200).send(data);
             });
         });
@@ -136,10 +136,8 @@ const router = (connection) => {
                 'INSERT INTO comments(comment_text, user_fk, video_fk, blog_fk, comment_date) VALUES(?,?,?,?,curdate())',
                 [req.body.comment, user.id, req.body.video, req.body.blog],
                 (err, success) => {
-                    if (err) {
-                        console.log(err);
-                        return res.status(500).send(JSON.stringify({error: 'db error'}));
-                    }
+                    if (err) return res.status(500).send(JSON.stringify({error: 'server error'}));
+
                     res.status(200).send(JSON.stringify({success: 'comment added'}));
                 }
             );
