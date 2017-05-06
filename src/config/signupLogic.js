@@ -4,8 +4,9 @@ const jwt = require('jsonwebtoken');
 const jwtSecret = require('../../.jwtinfo').key;
 
 const signup = (req, connection, cb) => {
-    const {username, password, premium} = req.body;
-    const email = req.body.email || null;
+    const {email, password, premium, username} = req.body;
+    if (!email || !password || !username) return cb(null, {error: 'invalid'});
+    if (password.length < 7) return cb(null, {error: 'password too short'});
     const premiumSignupDate = premium ? 'curdate()' : null;
 
     const success = () => {
@@ -44,12 +45,22 @@ const signup = (req, connection, cb) => {
         });
     };
 
-    connection.query('SELECT u.user_id FROM users u WHERE username=?',
-        [username],
+    connection.query(
+        'SELECT u.email FROM users u WHERE email=?',
+        [email],
         (err, rows) => {
             if (err) return cb({error: 'db error'});
-            if (rows.length) return cb(null, {error: 'username is taken'});
-            success();
+            if (rows && rows.length) return cb(null, {error: 'email in use'});
+
+            connection.query('SELECT u.user_id FROM users u WHERE username=?',
+                [username],
+                (err, rows) => {
+                    if (err) return cb({error: 'db error'});
+                    if (rows && rows.length) return cb(null, {error: 'username is taken'});
+
+                    success();
+                }
+            );
         }
     );
 };

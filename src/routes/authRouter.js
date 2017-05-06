@@ -28,7 +28,7 @@ const router = (connection) => {
                     'UPDATE users SET password=? WHERE username=?',
                     [hash, username],
                     (err, rows) => {
-                        if (err) return res.status(500).send({error: 'db error'});
+                        if (err) return res.status(500).send({error: 'server error'});
                         return res.status(200).send({success: 'Changed Password'});
                     }
                 );
@@ -38,8 +38,8 @@ const router = (connection) => {
 
     authRouter.post('/signup', jsonParser, (req, res) => {
         signupLogic(req, connection, (err, token, userData) => {
-            if (err) return res.status(500).send(err);
-            if (token.error === 'username is taken') return res.status(403).send({error: 'username is taken'});
+            if (err) return res.status(500).send('server error');
+            if (token.error) return res.status(403).send({error: token.error});
             res.status(200).send(JSON.stringify({token, userData}));
         });
     });
