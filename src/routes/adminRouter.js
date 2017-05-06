@@ -31,13 +31,13 @@ const router = (connection) => {
                 'UPDATE users SET banned_user = true WHERE user_id = ?',
                 [req.body.bannedUser],
                 (err, rows) => {
-                    if (err) return res.status(500).send({error: 'db error'});
+                    if (err) return res.status(500).send({error: 'server error'});
 
                     connection.query(
                         'DELETE FROM comments WHERE user_fk = ?',
                         [req.body.bannedUser],
                         (err, rows) => {
-                            if (err) return res.status(500).send({error: 'db error'});
+                            if (err) return res.status(500).send({error: 'server error'});
                             res.status(200).send({success: 'user banned'});
                         }
                     );
@@ -60,7 +60,7 @@ const router = (connection) => {
                     blogId
                 ],
                 (err, rows) => {
-                    if (err) return res.status(500).send({error: 'db error'});
+                    if (err) return res.status(500).send({error: 'server error'});
                     res.status(200).send({success: 'Updated Post'});
                 }
             )
@@ -74,13 +74,13 @@ const router = (connection) => {
                 'DELETE FROM images WHERE blog_fk=?',
                 [blogId],
                 (err, rows) => {
-                    if (err) return res.status(500).send({error: 'db error'});
+                    if (err) return res.status(500).send({error: 'server error'});
 
                     connection.query(
                         'INSERT INTO images(blog_fk, image_url) VALUES(?,?)',
                         [blogId, req.file.filename],
                         (err, success) => {
-                            if (err) return res.status(500).send({error: 'db error'});
+                            if (err) return res.status(500).send({error: 'server error'});
                             res.status(200).send(JSON.stringify({success: 'image changed'}));
                         }
                     );
@@ -96,7 +96,7 @@ const router = (connection) => {
             if (err || !user) return res.status(401).send({error: 'unauthorized'});
 
             const blogPostUrl = uploadTitleVal.split(' ').join('-');
-            if (!uploadTitleVal || !editorHtml) return res.status(500).send({error: 'error'});
+            if (!uploadTitleVal || !editorHtml) return res.status(500).send({error: 'server error'});
 
             connection.query(
                 'INSERT INTO blogs(blog_title, blog_headline, blog_seo_description, blog_text, blog_post_url, blog_date) VALUES(?,?,?,?,?,curdate())',
@@ -109,13 +109,13 @@ const router = (connection) => {
                 ],
                 (err, success) => {
                     if (err) console.log(err);
-                    if (err) return res.status(500).send({error: 'Error saving to Database'});
+                    if (err) return res.status(500).send({error: 'server error'});
                     if (req.file) {
                         connection.query(
                             'INSERT INTO images(blog_fk, image_url) VALUES(?,?)',
                             [success.insertId, req.file.filename],
                             (err, done) => {
-                                if (err) return res.status(500).send({error: 'Error saving to Database'});
+                                if (err) return res.status(500).send({error: 'server error'});
                                 res.status(200).send(JSON.stringify({success: 'file uploaded'}));
                             }
                         );
@@ -133,7 +133,7 @@ const router = (connection) => {
         verifyAdmin(connection, token, (err, user) => {
             if (err || !user) return res.status(401).send({error: 'unauthorized'});
 
-            if (!uploadTitleVal || !req.file) return res.status(500).send({error: 'error'});
+            if (!uploadTitleVal || !req.file) return res.status(500).send({error: 'server error'});
             connection.query('INSERT INTO videos(video_title, video_headline, video_text, video_url, premium, video_date) VALUES(?,?,?,?,?,curdate())',
                 [
                     uploadTitleVal,
@@ -143,7 +143,7 @@ const router = (connection) => {
                     true
                 ],
                 (err, success) => {
-                    if (err) return res.status(500).send({error: 'Error saving to Database'});
+                    if (err) return res.status(500).send({error: 'server error'});
                     res.status(200).send(JSON.stringify({success: 'file uploaded'}));
                 }
             );
@@ -176,7 +176,7 @@ const router = (connection) => {
                         placeholder_url
                     ],
                     (err, rows) => {
-                        if (err) return res.status(500).send({error: 'Error saving to Database'});
+                        if (err) return res.status(500).send({error: 'server error'});
                         res.status(200).send(JSON.stringify({success: 'file uploaded'}));
                     }
                 );
@@ -186,11 +186,11 @@ const router = (connection) => {
 
     adminRouter.post('/getData', jsonParser, (req, res) => {
         verifyAdmin(connection, req.body.token, (err, user) => {
-            if (err) return res.status(500).send({error: 'auth error'});
+            if (err) return res.status(500).send({error: 'server error'});
             if (!user) return res.status(403).send({error: 'unauthorized'});
 
             getAdminData(connection, (err, adminData) => {
-                if (err) return res.status(500).send({error: 'db error'});
+                if (err) return res.status(500).send({error: 'server error'});
                 res.status(200).send(JSON.stringify(adminData));
             })
         });
@@ -198,11 +198,11 @@ const router = (connection) => {
 
     adminRouter.post('/deleteComments', jsonParser, (req, res) => {
         verifyAdmin(connection, req.body.token, (err, user) => {
-            if (err) return res.status(500).send({error: 'auth error'});
+            if (err) return res.status(500).send({error: 'server error'});
             if (!user) return res.status(403).send({error: 'unauthorized'});
 
             removeComments(connection, req.body.trash, (err, success) => {
-                if (err) return res.status(500).send({error: 'DB Error'});
+                if (err) return res.status(500).send({error: 'server error'});
                 res.status(200).send({success: 'Comments Removed'});
             });
         });
